@@ -1,3 +1,4 @@
+use std::fmt::Write;
 use std::io::{self, BufRead, BufReader};
 use std::{error::Error, vec};
 
@@ -98,21 +99,18 @@ pub fn run(config: Config) -> MyResult<()> {
                 Ok(file) => {
                     let matches = find_lines(file, &config.pattern, config.invert_match)?;
 
-                    if config.count {
-                        if many_files {
-                            print!("{}:", path);
-                        }
+                    let mut prefix = String::new();
+                    if many_files {
+                        write!(prefix, "{}:", path)?;
+                    }
 
-                        println!("{}", matches.len());
+                    if config.count {
+                        println!("{}{}", prefix, matches.len());
                         continue;
                     }
 
                     for match_ in &matches {
-                        if many_files {
-                            print!("{}:", path);
-                        }
-
-                        print!("{}", match_);
+                        print!("{}{}", prefix, match_);
                     }
                 }
             },
@@ -175,10 +173,10 @@ fn find_lines<T: BufRead>(
         }
 
         if invert_match ^ pattern.is_match(&buffer) {
-            res.push(buffer.to_string());
+            res.push(std::mem::take(&mut buffer));
+        } else {
+            buffer.clear();
         }
-
-        buffer.clear();
     }
 
     Ok(res)
