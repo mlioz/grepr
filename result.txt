@@ -1,0 +1,4 @@
+tests/inputs/bustle.txt:The bustle in a house
+
+tests/inputs/fox.txt:The quick brown fox jumps over the lazy dog.
+
